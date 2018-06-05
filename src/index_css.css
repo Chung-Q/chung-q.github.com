@@ -1,0 +1,252 @@
+body {
+			margin: 0px 0px 0px 0px;
+        }
+       
+        #calculator {
+            font-size: 0;
+            width: 388px;
+			height: 690px;
+            background-color: #484848;
+            padding: 5px 4px 7px 4px;
+            margin: auto;
+            border-radius: 10px;           
+        }
+       
+		#history {
+            width: 373px;
+            height: 325px;
+			margin: 3px 0px 10px 3px;
+            padding: 0px 5px 0px 5px;
+            background-color: snow;
+            border-radius: 5px;
+            align-items: center;
+            overflow: scroll;
+            box-shadow: inset 0 0px 3px;
+            font: 20px digital;
+        }
+		
+		#how-to-use {
+			width: 350px;
+			height: 19px;
+			margin-top: -13px;
+			margin-left: 3px;
+			padding: 0px 0px 0px 2px;
+			position: relative; top: 6; left: 1;
+			background-color: Beige;
+			border-radius: 5px;
+			vertical-align: middle;
+			font: 12px digital;
+			font-weight: bold;
+			visibility: hidden;
+		}
+		
+		#history-clear {
+			width: 28px;
+			margin-top: -17px;
+			margin-left: -7px;
+			position: relative; top: -41px; left: 350px;
+			cursor: pointer;
+		}
+		
+		#trashcan {
+			width: 28px;
+			height: 28px;
+		}
+		
+		#canvas {
+			width: 373px;
+            height: 325px;
+			margin: 3px 0px 10px 3px;
+            padding: 0px 5px 0px 5px;
+			position: absolute; top: 26px;
+			background-color: snow;
+			border-radius: 5px;
+            align-items: center;
+			box-shadow: inset 0 0px 3px;
+			display: none;
+		}
+		
+		#form {
+			width: 373px;
+			margin-top: -66px;
+			margin-left: 3px;
+			padding: 0px 0px 0px 0px;
+			position: absolute; top: 370px;
+			vertical-align: middle;
+			font: 12px digital;
+			font-weight: bold;
+			background-color: none;
+		}
+		
+		.domain {
+			width: 110px;
+			height: 17px;
+			border-radius: 5px;
+			margin-top: 3px;
+		}
+	   
+        #input {
+            width: 373px;
+            height: 45px;
+			margin: -2px 0px 8px 3px;
+            padding: 0px 5px 0px 5px;
+            background-color: white;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+			overflow-y: hidden;
+			overflow-x: scroll;
+            box-shadow: inset 0 0px 3px;
+            font: 20px digital;
+        }
+		#keypad {
+			margin: 5px 0px 0px 5.5px;
+		}
+		
+		#graph-visible {
+			width: auto;
+			display: inline-block;
+			border: 2px dotted;
+			border-radius: 10px;
+			border-color: white;
+			margin-left: -3px;
+			margin-right: 3px;
+			padding-left: 3px;
+		}
+		
+		/* The switch - the box around the slider */
+		.switch {
+			position: relative;
+			display: inline-block;
+			width: 60px;
+			height: 34px;
+			vertical-align:middle;
+		}
+ 
+		/* Hide default HTML checkbox */
+		.switch input {display:none;}
+ 
+		/* The slider */
+		.slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #ccc;
+			-webkit-transition: .4s;
+			transition: .4s;
+		}
+ 
+		.slider:before {
+			position: absolute;
+			content: "";
+			height: 26px;
+			width: 26px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			-webkit-transition: .4s;
+			transition: .4s;
+		}
+ 
+		input:checked + .slider {
+			background-color: LimeGreen;
+		}
+ 
+		input:focus + .slider {
+			box-shadow: 0 0 1px #2196F3;
+		}
+ 
+		input:checked + .slider:before {
+			-webkit-transform: translateX(26px);
+			-ms-transform: translateX(26px);
+			transform: translateX(26px);
+		}
+ 
+		/* Rounded sliders */
+		.slider.round {
+			border-radius: 34px;
+		}
+ 
+		.slider.round:before {
+			border-radius: 50%;
+		}
+ 
+		#graph-icon {
+			width: 48px;
+			height: 48px;
+			display: inline-flex;
+            margin: -6px 0px -2px 0px;
+			padding-top: 1px;
+            vertical-align: middle;
+		}
+		
+        .key {
+            width: 34.2px;
+            height: 26px;
+            background-color: WhiteSmoke;
+            display: inline-flex;
+            margin: 3px 4px 8.5px 0px;
+            vertical-align: middle;
+            justify-content: center;
+            align-items: center;
+            padding: 5px 0px 5px 0px;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #a1a1a1, 0 2px 5px rgba(0, 0, 0, .75);
+            font: bold 20px sans-serif;
+        }
+		
+		.number-key {
+            background-color: AntiqueWhite;
+        }
+		
+		.arithmetic-key {
+            background-color: Darkorange;
+			color: white
+        }
+		
+        .symbol-key {
+		    background-color: #4a9840;
+			color: white;
+            font: italic 20px "Times New Roman"
+        }
+
+        .function-key {
+			background-color: Crimson;
+			color: white;
+            font: italic 15px "Times New Roman"
+        }
+		
+        .eval-key {
+			margin-top: 3px;
+			width: 263.3px;
+            background-color: Gold;
+        }
+       
+        .clear-key {
+            background-color: Gray;
+            color: white;
+        }
+		
+		.delete-key {
+            background-color: Gray;
+            color: white;
+        }
+       
+	    #history-clear:active {
+            transform: translateY(2px);
+        }
+	   
+        .key:active {
+            background-color: #a1a1a1;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+		
+		::-webkit-scrollbar {width: 12px; height: 12px;}
+		::-webkit-scrollbar-track {background: #efefef; -webkit-border-radius: 10px; border-radius:10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3)}
+		::-webkit-scrollbar-thumb {height: 50px; width: 50px; -webkit-border-radius: 10px; border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5)}
+		::-webkit-scrollbar-corner {-webkit-border-radius: 10px; border-radius:10px;}

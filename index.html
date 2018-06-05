@@ -1,0 +1,336 @@
+<html>
+<head>
+    <title>HCI 공학계산기 대화형 프로토타입</title>
+    <style>
+        @import url(Src/index_css.css);
+    </style>
+ 
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js' type='text/javascript'></script>
+    <script src='src/math.js' type='text/javascript'></script>
+	<script src='src/plotly-1.35.2.min.js' type='text/javascript'></script>
+	<script type='text/javascript'>
+		$(document).ready(function(){
+            var parser = math.parser();
+			var selected_Domain = null;
+			var domainData = ''
+            var valueData = '0';
+			var coloredData = new Array();	// 색 변환 후의 문자열 저장
+			var graphData = '0';
+			var graphArray = new Array();
+			// history 지워주는 버튼
+			$('#history-clear').click(function(e) {
+				$('#history').text('');
+			});
+			// 그래프 모드 전환
+			var check = $("input[type='checkbox']");
+				check.click(function(){
+				$("p").toggle();
+				$("#canvas").toggle(500);
+			});
+			// 범위 입력칸 눌렀을 떄 그것을 타겠으로 삼음, 아니면 null 값으로
+			$('.domain').each(function(){  
+                $(this).click(function(e){
+					selected_Domain = $(this);
+					domainData = selected_Domain.val();
+				});
+				selected_Domain = null;
+			});
+			// 그래프 그려주는 함수
+			function draw(obj) {
+				try {
+					var expr = math.compile(obj);
+					var begin = $('#begin-domain').val();
+					var end = $('#end-domain').val();
+					
+					var xValues = math.range(begin, end, 0.1, true).toArray();
+					var yValues = xValues.map(function (x) {
+						return expr.eval({x: x});
+					});
+					
+					var trace1 = {
+						x: xValues,
+						y: yValues,
+						name: obj,
+						type: 'scatter'
+					};
+					var data = [trace1];
+					var layout = {
+						autosize: true,
+						margin: {
+							l: 25,
+							r: 10,
+							b: 50,
+							t: 35,
+							pad: 1
+						},
+						line: {
+							shape: 'spline',
+							smoothing: 1
+						},
+						dragmode : 'pan',
+						showlegend: true,
+						legend: {"orientation": "h"},					
+					};
+					var configuration = {
+						displayModeBar: false,
+						scrollZoom: true
+					};
+					
+					Plotly.plot('canvas', data, layout, configuration);
+				}
+				catch (err) {
+					console.error(err);
+					alert(err);
+				}
+			}
+			
+            $('.key').each(function(index, key){       
+                $(this).click(function(e){
+                    if(valueData == '0') valueData = '';
+
+                    if($(this).text() == 'Enter')
+                    {
+						if(selected_Domain != null) {
+								selected_Domain = null;
+								domainData = '';
+								Plotly.purge('canvas');
+								$.each(graphArray, function(index, item) {
+								draw(item);
+								});
+								return;
+							}
+                        try
+                        {
+							graphData = valueData.substring(valueData.indexOf("=", 0)+ 1, valueData.length);
+							// graphData : f(x)=x^2+2*x 일 때 = 이후에 입력된 문자열(x^2+2*x)을 저장
+							graphArray.push(graphData);
+							$.each(graphArray, function(index, item) {
+								console.log(item);
+							});
+                            valueData = parser.eval(valueData).toString();
+                            var tokens = valueData.split(' ');
+                            if(tokens[0] == 'function')
+                            {
+                                draw(graphData);
+								valueData = tokens[0];
+                            }
+							// valueData : 계산 결과, 첫글자가 f, g 같이 함수 정수일 경우에는 'function'
+                            $.each(coloredData, function(index, item) {
+								$('#history').append(item);
+							});
+							$('#history').append('<br>' + '= ' + valueData.fontcolor("Dodgerblue") + '<br>' );								
+							$('#history').scrollTop($('#history').get(0).scrollHeight);	// 스크롤이 항상 아래로 고정
+							valueData = '0';
+							coloredData = new Array();
+							$('#input').text('');	// 모두 초기화
+                        }
+                        catch (e)
+                        {
+                            valueData = '0';
+							coloredData = new Array();
+							$('#input').text('');
+                            if(valueData != 'function')
+                            {
+                                $('#history').append(e + '<br>');
+                            }
+                        }               
+                    }
+                    else
+                    {
+                        if($(this).text() == 'CL')
+                        {
+							if(selected_Domain != null && selected_Domain.val() != '') {
+								selected_Domain.val('');
+								domainData = selected_Domain.val();
+								selected_Domain.focus();
+								return;
+							}
+							if($('#how-to-use').css('visibility') == 'visible') {
+								$('#how-to-use').css('visibility', 'hidden');
+							}
+                            valueData = '0';
+							coloredData = new Array();
+                            $('#input').text('');	// 모두 초기화
+                        }
+						else if($(this).text() == '←')
+						{
+							if(selected_Domain != null) {
+								domainData = domainData.slice(0, -1);
+								selected_Domain.val(domainData);
+								return;
+							}
+							valueData = valueData.slice(0,-1);	// 마지막 데이터 삭제
+							coloredData.pop();	// 배열의 마지막 삭제
+							$('#input').text('');	// input 비워주고
+							$.each(coloredData, function(index, item) {
+								$('#input').append(item);
+							});	// 배열의 나머지로 다시 채워줌
+						}
+                        else
+                        {   
+							if(selected_Domain != null) {
+								selected_Domain.val(domainData + $(this).text());
+								domainData = selected_Domain.val();
+								return;
+							}
+						
+							// 누르는 버튼 별로 입력되는 글씨의 색을 바꿔줌
+							// function-key: 빨, arithmetic-key+etc-key: 금, symbol-key: 초, parenthesis-key: 보
+							if($(this).hasClass('function-key')) {
+								coloredData.push($(this).text().fontcolor("red"));
+								// 함수 버튼 누르면 사용법, 예시가 화면에 나타남
+								switch ($(this).text()) {
+								
+								case 'sin': 
+									$('#how-to-use').text('sin(x) -> 예) sin(10)=-0.54402111...');
+									break;
+								case 'cos':
+									$('#how-to-use').text('cos(x) -> 예) cos(10)=-0.83907152...');
+									break;	
+								case 'tan':
+									$('#how-to-use').text('tan(x) -> 예) tan(10)=0.64836082...');
+									break;	
+								case 'dot':
+									$('#how-to-use').text('벡터내적 -> 예) x=[2,3] y=[3,2]일 때 dot(x,y)=12');
+									break;	
+								case 'cross':
+									$('#how-to-use').text('벡터외적 -> 예) x=[1,2,3] y=[3,2,1]일 때 cross(x,y)=[-4,8,-4]');
+									break;
+								case 'det':
+									$('#how-to-use').text('행렬식 -> 예) x=[1,2;3,4]일 때 det(x)=-2');
+									break;	
+								case 'inv':
+									$('#how-to-use').text('역행렬 -> 예) x=[1,2;3,4]일 때 inv(x)=[[-2,1],[1.5,-0.5]]');
+									break;	
+								case 'exp':
+									$('#how-to-use').text('exp(x) -> 예) x=1.3일 때 exp(1.3)=3.66929666');
+									break;
+								case 'log':
+									$('#how-to-use').text('log(진수,밑) -> 예)log(4,2)=2 단, 밑 적지 않으면 밑은 자연상수' );
+									break;	
+								case 'sqrt':
+									$('#how-to-use').text('sqrt(x) -> 예) x=9일 때 sqrt(9)=3');
+									break;	
+								}
+								$('#how-to-use').css('visibility', 'visible');
+							}
+							else if($(this).hasClass('arithmetic-key') || $(this).hasClass('etc-key')) {
+								coloredData.push($(this).text().fontcolor("Darkorange"));
+							}
+							else if($(this).hasClass('symbol-key')) {
+								coloredData.push($(this).text().fontcolor("green"));
+							}
+							else if($(this).hasClass('parenthesis-key')) {
+								coloredData.push($(this).text().fontcolor("MediumOrchid"));
+							}
+							else
+							{
+								coloredData.push($(this).text());
+							}
+							
+							if($(this).hasClass('function-key')) {
+								$('#input').append(coloredData.slice(-1).pop());
+								coloredData.push('('.fontcolor("MediumOrchid"));
+							}
+							
+							if(!$(this).hasClass('function-key') && $('#how-to-use').css('visibility') == 'visible') {
+								$('#how-to-use').css('visibility', 'hidden');
+							}
+	
+							$('#input').append(coloredData.slice(-1).pop());	// 배열의 마지막을 input에 넣어줌
+							valueData = $('#input').text();	// input의 text를 그대로 valueData에 저장
+                        }
+                    }
+
+                    e.preventDefault()
+                })
+            })
+        })
+	</script>
+</head>
+ 
+<body>
+	&nbsp;
+    <div id="calculator">
+		<div id="history"></div>
+		<div id="how-to-use">how to use functions?</div>
+		<div id="history-clear"><img id="trashcan" src="src/Trashcan.png"></div>
+		<div id="canvas">
+			<form id="form">
+			<label for="domain">x의 범위를 입력하세요 : </label>
+			<input type="text" class="domain" id="begin-domain" value="0" />
+			<label for="domain"> ~ </label>
+			<input type="text" class="domain" id="end-domain" value="1" />
+		</form>
+		</div>
+		
+        <div id="input"></div>
+		<div id="keypad">
+		<div id="graph-visible">
+		<label class="switch">
+			<input type="checkbox">
+			<span class="slider round"></span>
+		</label>
+		<p id="graph-icon"><img src="src/Graph_off.png"></p>
+		<p id="graph-icon" style="display:none;"><img src="src/Graph_on.png"></p>
+		</div>
+		<span class="key symbol-key">x</span>
+        <span class="key symbol-key">y</span>
+        <span class="key symbol-key">z</span>
+		<span class="key symbol-key">f</span>
+        <span class="key symbol-key">g</span>
+        <span class="key clear-key">CL</span>
+		<span class="key delete-key">←</span>
+		
+		<span class="key function-key">dot</span>
+		<span class="key function-key">cross</span>
+        <span class="key function-key">det</span>
+		<span class="key function-key">inv</span>
+		<span class="key symbol-key">pi</span>
+		<span class="key symbol-key">e</span>
+		<span class="key number-key">7</span>
+        <span class="key number-key">8</span>
+        <span class="key number-key">9</span>
+		<span class="key arithmetic-key">/</span>
+		
+		<span class="key function-key">exp</span>
+        <span class="key function-key">log</span>
+        <span class="key function-key">sqrt</span>
+		<span class="key function-key">sin</span>
+        <span class="key function-key">cos</span>
+        <span class="key function-key">tan</span>
+		<span class="key number-key">4</span>
+        <span class="key number-key">5</span>
+        <span class="key number-key">6</span>
+		<span class="key arithmetic-key">*</span>
+		
+		<span class="key compare-key"><</span>
+        <span class="key compare-key">></span>
+		<span class="key parenthesis-key">(</span>
+        <span class="key parenthesis-key">)</span>
+		<span class="key parenthesis-key">[</span>
+        <span class="key parenthesis-key">]</span>
+        <span class="key number-key">1</span>
+        <span class="key number-key">2</span>
+        <span class="key number-key">3</span>
+        <span class="key arithmetic-key">-</span>
+		
+		<span class="key compare-key"><=</span>
+        <span class="key compare-key">>=</span>
+        <span class="key compare-key">==</span>
+        <span class="key compare-key">!=</span>
+		<span class="key">:</span>
+        <span class="key">;</span>
+		<span class="key">,</span>
+        <span class="key number-key">0</span>
+		<span class="key">.</span>
+        <span class="key arithmetic-key">+</span>
+		
+        <span class="key eval-key">Enter</span>
+		<span class="key arithmetic-key">^</span>
+		<span class="key arithmetic-key">%</span>
+		<span class="key arithmetic-key">=</span>
+		</div>
+    </div>
+</body>
+</html>
