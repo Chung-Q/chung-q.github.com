@@ -31,6 +31,9 @@
                 $(this).click(function(e){
 					selected_Domain = $(this);
 					domainData = selected_Domain.val();
+					
+					$('#how-to-use').text('숫자 입력 후 Enter');
+					$('#how-to-use').css('visibility', 'visible');	// 범위 설정 시 안내 메시지
 				});
 				selected_Domain = null;
 			});
@@ -96,6 +99,7 @@
 								$.each(graphArray, function(index, item) {
 								draw(item);
 								});
+								$('#how-to-use').css('visibility', 'hidden');	// 범위 설정 시 안내 메시지 감춤
 								return;
 							}
                         try
